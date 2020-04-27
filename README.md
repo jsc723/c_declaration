@@ -23,7 +23,6 @@ gcc cdec.c -o cdec.exe
 ## Example:
 ```
 .\cdec.exe "int (*(*vtable)[])(int **, int (*)[12])"
-input: int (*(*vtable)[])(int **, int (*)[12])
 vtable is a pointer to an array of a pointer to a function taking (a pointer to a pointer to int, a pointer to an array of 12 int) and returning int
 ```
 
