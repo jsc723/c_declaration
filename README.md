@@ -6,7 +6,7 @@ Parse a subset of c declaration defined by the follwing language into English.
         -> E(S,...)
         -> E[N]
         -> *E
-        -> literal
+        -> identifier
     N   -> [0-9]*
 ```
 ## Compile:
