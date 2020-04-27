@@ -2,15 +2,17 @@
 #include <stdlib.h>
 #include <string.h>
 /*
-S   -> int E
-E   -> (E)
-    -> E([S,]...)
-    -> E[N]
-    -> *E
-    -> literal
-N   -> [0-9]+
+    Author: Jack Jiang
+    2020/4/26
+    Parse a subset of c declaration defined by the follwing language into English. 
+    S   -> int E
+    E   -> (E)
+        -> E(S,...)
+        -> E[N]
+        -> *E
+        -> literal
+    N   -> [0-9]*
 */
-
 int isAzaz(const char c) {
     return (c >= 'A' && c <= 'Z') || (c>='a' && c<='z') || (c=='_');
 }
@@ -18,7 +20,7 @@ int isNum(const char c) {
     return c>='0'&&c<='9';
 }
 int isSpace(const char c) {
-    return c == ' ';
+    return c == ' ' || c=='\t' || c=='\n' || c=='\r';
 }
 const int N  = 64;
 int nextToken(const char *exp, int begin);
@@ -36,20 +38,14 @@ int prevPara(char **tokens, int begin, int start, const char *p);
 const char *getArraySize(char **tokens, int begin, int end);
 
 int main(int argc, char *argv[]) {
-    //char *input = "int (*(*vtable)[])(int **, int (*)[12]) ";
     if(argc != 2) {
         printf("Usage: ./cdec.exe <C_declaration>\n");
         exit(0);
     }
     printf("input: %s\n", argv[1]);
     char **tokens = tokenlize(argv[1]);
-    int i = 0;
-    //printf("tokenlize: ");
-    while(tokens[i]) {
-        //printf("<%s> ", tokens[i]);
-        ++i;
-    }
-    //printf("\n");
+    int i = -1;
+    while(tokens[++i]);
     parseStatement(tokens, 0, i);
     printf("\n");
     return 0;
@@ -72,12 +68,10 @@ char **tokenlize(const char *statement) {
 /*Return the start index of the next token.*/
 int nextToken(const char *exp, int begin) {
     int i = begin;
-    if(exp[i] != '\0') {
+    if(exp[i]) {
         if(isAzaz(exp[i])) {
-            ++i;
-            while(isAzaz(exp[i]) || isNum(exp[i])) {
+            while(isAzaz(exp[i]) || isNum(exp[i])) 
                 ++i;
-            }
         } else if (isNum(exp[i])) {
             while(isNum(exp[++i]));
         } else if (isSpace(exp[i])) {
@@ -104,29 +98,24 @@ void parseStatements(char **tokens, int begin, int end) {
         if(i < end)
             printf(", ");
     }
-
 }
 void parseStatement(char **tokens, int begin, int end) {
     parseExpression(tokens, begin + 1, end);
-    //printTokens(tokens, begin + 1, end);
     printf("%s", tokens[begin]);
 }
 void parseExpression(char **tokens, int begin, int end) {
     int split;
     if(isStarExp(tokens, begin, end)) {
         parseExpression(tokens, begin + 1, end);
-        //printTokens(tokens, begin + 1, end);
         printf("a pointer to ");
     } else if (isArrayExp(tokens, begin, end, &split)) {
         parseExpression(tokens, begin, split);
-        //printTokens(tokens, begin, split);
         printf("an array of ");
         const char *size_s = getArraySize(tokens, split, end);
         if(size_s)
             printf("%s ", size_s);
     } else if (isFuncExp(tokens, begin, end, &split)) {
         parseExpression(tokens, begin, split);
-        //printTokens(tokens, begin, split);
         printf("a function taking (");
         parseStatements(tokens, split + 1, end - 1);
         printf(") and returning ");
@@ -148,7 +137,7 @@ int isStarExp(char **tokens, int begin, int end) {
 }
 int isArrayExp(char **tokens, int begin, int end, int *split) {
     int prev = prevPara(tokens, begin, end - 1, "]");
-    if(prev == -1 || prev == begin)
+    if(prev == -1)
         return 0;
     *split = prev;
     return 1;
