@@ -1,5 +1,14 @@
 # c_declaration
-A parser that translate a subset of c declaration into English<br>
+Parse a subset of c declaration defined by the follwing language into English. 
+```
+    S   -> int E
+    E   -> (E)
+        -> E(S,...)
+        -> E[N]
+        -> *E
+        -> literal
+    N   -> [0-9]*
+```
 <div>
   <h2>Compile:</h2>
   <code>
