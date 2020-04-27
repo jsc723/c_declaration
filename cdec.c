@@ -10,7 +10,7 @@
         -> E(S,...)
         -> E[N]
         -> *E
-        -> literal
+        -> identifier
     N   -> [0-9]*
 */
 int isAzaz(const char c) {
@@ -42,7 +42,6 @@ int main(int argc, char *argv[]) {
         printf("Usage: ./cdec.exe <C_declaration>\n");
         exit(0);
     }
-    printf("input: %s\n", argv[1]);
     char **tokens = tokenlize(argv[1]);
     int i = -1;
     while(tokens[++i]);
